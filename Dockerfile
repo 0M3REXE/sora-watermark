@@ -9,17 +9,12 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app
 
-# Copy manifest only (avoid locking with a host Cargo.lock that may be newer than
-# the builder's Cargo/Cargo.lock format). We'll generate a lockfile inside the
-# builder so Cargo creates a compatible lock for this environment.
+# Copy everything needed for build (except Cargo.lock to avoid version mismatch)
 COPY Cargo.toml ./
-RUN cargo generate-lockfile
-
-# Copy source code
 COPY src ./src
 COPY static ./static
 
-# Build for release
+# Build for release (cargo will generate a compatible lockfile automatically)
 RUN cargo build --release
 
 # Runtime stage
