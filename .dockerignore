@@ -4,7 +4,7 @@ target/
 *.log
 *.tmp
 *.temp
-test-*.mp4
+test-*.mp4successfully
 manual-*.mp4
 no-chromakey-*.mp4
 README.md
