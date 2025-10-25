@@ -35,8 +35,9 @@ COPY --from=builder /app/target/release/webtest /app/webtest
 COPY static ./static
 COPY sora-watermark.mp4 ./sora-watermark.mp4
 
-# Expose port
-EXPOSE 8000
+# Railway will set PORT env var dynamically, but we expose a default
+# Note: EXPOSE is just documentation, the app binds to whatever PORT env var is set
+EXPOSE 8080
 
 # Run the binary
 CMD ["/app/webtest"]
