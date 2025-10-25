@@ -9,8 +9,11 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app
 
-# Copy manifests
-COPY Cargo.toml Cargo.lock ./
+# Copy manifest only (avoid locking with a host Cargo.lock that may be newer than
+# the builder's Cargo/Cargo.lock format). We'll generate a lockfile inside the
+# builder so Cargo creates a compatible lock for this environment.
+COPY Cargo.toml ./
+RUN cargo generate-lockfile
 
 # Copy source code
 COPY src ./src
