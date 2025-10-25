@@ -38,8 +38,5 @@ COPY sora-watermark.mp4 ./sora-watermark.mp4
 # Expose port
 EXPOSE 8000
 
-# Set environment variable for binding to all interfaces
-ENV BIND_ADDRESS=0.0.0.0:8000
-
 # Run the binary
 CMD ["/app/webtest"]
