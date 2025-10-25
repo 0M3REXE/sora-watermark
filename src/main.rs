@@ -153,8 +153,10 @@ fn apply_watermark(input_path: &PathBuf, output_path: &PathBuf) -> Result<(), St
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    // Initialize logger
-    env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info")).init();
+    // Initialize logger to write to stdout instead of stderr (Railway displays stderr as errors)
+    env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info"))
+        .target(env_logger::Target::Stdout)
+        .init();
 
     // Check if watermark file exists
     if !std::path::Path::new(WATERMARK_PATH).exists() {
