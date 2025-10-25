@@ -1,0 +1,19 @@
+services:
+  # Sora AI Watermark Service
+  - type: web
+    name: sora-watermark-service
+    env: docker
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: BIND_ADDRESS
+        value: 0.0.0.0:8000
+      - key: RUST_LOG
+        value: info
+    healthCheckPath: /health
+    
+    # Resource allocation
+    plan: starter  # Free tier (change to 'starter' or higher for production)
+    
+    # Auto-deploy settings
+    branch: main
+    autoDeploy: true

@@ -1,0 +1,15 @@
+target/
+.git/
+.gitignore
+*.log
+*.tmp
+*.temp
+test-*.mp4
+manual-*.mp4
+no-chromakey-*.mp4
+README.md
+PROJECT_SUMMARY.md
+test-api.ps1
+fix-path.ps1
+.vscode/
+.idea/

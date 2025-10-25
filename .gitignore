@@ -1,0 +1,31 @@
+# Rust
+/target/
+**/*.rs.bk
+Cargo.lock
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Temporary files
+*.tmp
+*.temp
+
+# Videos (except watermark)
+*.mp4
+*.avi
+*.mov
+*.webm
+*.mkv
+!sora-watermark.mp4
+
+# Logs
+*.log
