@@ -187,7 +187,7 @@ async fn main() -> std::io::Result<()> {
             .route("/api/process", web::post().to(process_video))
     })
     .bind(bind_addr)?
-    .workers(4) // Handle multiple concurrent users
+    .workers(1) // Single worker to avoid confusing deployment platforms
     .run()
     .await
 }
