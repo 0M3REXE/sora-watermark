@@ -174,8 +174,13 @@ async fn main() -> std::io::Result<()> {
     }
 
     // Get bind address from environment or use default
-    let bind_addr = std::env::var("BIND_ADDRESS")
-        .unwrap_or_else(|_| "127.0.0.1:8000".to_string());
+    // Railway sets PORT, other platforms may set BIND_ADDRESS
+    let bind_addr = if let Ok(port) = std::env::var("PORT") {
+        format!("0.0.0.0:{}", port)
+    } else {
+        std::env::var("BIND_ADDRESS")
+            .unwrap_or_else(|_| "0.0.0.0:8000".to_string())
+    };
     
     log::info!("Starting Sora AI Watermark Service on http://{}", bind_addr);
     log::info!("Watermark file: {}", WATERMARK_PATH);
