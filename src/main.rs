@@ -115,12 +115,10 @@ fn apply_watermark(input_path: &PathBuf, output_path: &PathBuf) -> Result<(), St
         return Err(format!("Watermark file not found: {}", WATERMARK_PATH));
     }
 
+    log::info!("FFmpeg processing started - input: {:?}, output: {:?}", input_path, output_path);
+    
     // FFmpeg command to overlay watermark with green screen removal
-    // Since watermark is white/translucent on green background:
-    // 1. Use colorkey (works better than chromakey for some videos)
-    // 2. Remove green pixels while preserving white/non-green content
-    // 3. [1:1] explicitly selects video stream from watermark
-    // 4. Higher quality settings to reduce graininess
+    // Use faster preset for production to avoid timeouts
     
     let output = Command::new("ffmpeg")
         .args(&[
@@ -130,8 +128,8 @@ fn apply_watermark(input_path: &PathBuf, output_path: &PathBuf) -> Result<(), St
             "-filter_complex",
             "[1:1]colorkey=0x00FF00:0.6:0.3[wm];[0:v][wm]overlay=shortest=1",
             "-c:v", "libx264",                            // Video codec
-            "-preset", "slow",                             // Better quality (slower encoding)
-            "-crf", "18",                                  // Higher quality (18 = near lossless)
+            "-preset", "fast",                            // Faster encoding (was "slow" - too slow for production)
+            "-crf", "23",                                 // Balanced quality (was 18 - too slow)
             "-pix_fmt", "yuv420p",                        // Pixel format for compatibility
             "-c:a", "copy",                                // Copy audio from input
             "-map", "0:a?",                                // Map audio from first input if exists
@@ -143,11 +141,15 @@ fn apply_watermark(input_path: &PathBuf, output_path: &PathBuf) -> Result<(), St
         .output()
         .map_err(|e| format!("Failed to execute FFmpeg: {}. Make sure FFmpeg is installed and in PATH.", e))?;
 
+    log::info!("FFmpeg process completed with status: {}", output.status);
+    
     if !output.status.success() {
         let stderr = String::from_utf8_lossy(&output.stderr);
+        log::error!("FFmpeg error output: {}", stderr);
         return Err(format!("FFmpeg error: {}", stderr));
     }
-
+    
+    log::info!("Video processing successful");
     Ok(())
 }
 
@@ -177,11 +179,12 @@ async fn main() -> std::io::Result<()> {
 
     // Get bind address from environment or use default
     // Railway sets PORT, other platforms may set BIND_ADDRESS
+    // For local dev without env vars, use 127.0.0.1:8000
     let bind_addr = if let Ok(port) = std::env::var("PORT") {
         format!("0.0.0.0:{}", port)
     } else {
         std::env::var("BIND_ADDRESS")
-            .unwrap_or_else(|_| "0.0.0.0:8000".to_string())
+            .unwrap_or_else(|_| "127.0.0.1:8000".to_string())
     };
     
     log::info!("Starting Sora AI Watermark Service on http://{}", bind_addr);
