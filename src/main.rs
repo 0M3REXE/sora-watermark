@@ -118,7 +118,7 @@ fn apply_watermark(input_path: &PathBuf, output_path: &PathBuf) -> Result<(), St
     log::info!("FFmpeg processing started - input: {:?}, output: {:?}", input_path, output_path);
     
     // FFmpeg command to overlay watermark with green screen removal
-    // Use faster preset for production to avoid timeouts
+    // Optimized to match original video size/quality
     
     let output = Command::new("ffmpeg")
         .args(&[
@@ -128,10 +128,11 @@ fn apply_watermark(input_path: &PathBuf, output_path: &PathBuf) -> Result<(), St
             "-filter_complex",
             "[1:1]colorkey=0x00FF00:0.6:0.3[wm];[0:v][wm]overlay=shortest=1",
             "-c:v", "libx264",                            // Video codec
-            "-preset", "fast",                            // Faster encoding (was "slow" - too slow for production)
-            "-crf", "23",                                 // Balanced quality (was 18 - too slow)
+            "-preset", "medium",                          // Good balance of speed and compression
+            "-crf", "23",                                 // Standard quality (matches most inputs)
             "-pix_fmt", "yuv420p",                        // Pixel format for compatibility
-            "-c:a", "copy",                                // Copy audio from input
+            "-movflags", "+faststart",                    // Optimize for web streaming
+            "-c:a", "copy",                               // Copy audio (preserves original quality/size)
             "-map", "0:a?",                                // Map audio from first input if exists
             "-y",                                          // Overwrite output
             output_path.to_str().unwrap()
